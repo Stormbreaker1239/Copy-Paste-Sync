@@ -1,9 +1,14 @@
 import socket
 import asyncio
+import logging
+import json
+import websockets
 from zeroconf.asyncio import AsyncZeroconf, AsyncServiceBrowser
 
+logger = logging.getLogger("ClipSync.Discovery")
+
 class DiscoveryListener:
-    def __init__(self, target_code):
+    def __init__(self, target_code: str):
         self.found_hub = asyncio.Event()
         self.hub_address = None
         self.target_code = target_code
@@ -12,41 +17,58 @@ class DiscoveryListener:
         pass
 
     def remove_service(self, zc, type_, name):
-        print(f"Service {name} removed")
+        logger.debug(f"Service removed: {name}")
 
     def add_service(self, zc, type_, name):
-        # We use asyncio.ensure_future because add_service is called from a thread
-        asyncio.ensure_future(self.async_add_service(zc, type_, name))
+        asyncio.create_task(self.async_add_service(zc, type_, name))
 
     async def async_add_service(self, zc, type_, name):
-        info = await zc.async_get_service_info(type_, name)
-        if info:
-            # Now we use the target_code passed during initialization
-            if f"Hub-{self.target_code}" in name: 
+        try:
+            info = await zc.async_get_service_info(type_, name)
+            if info and f"Hub-{self.target_code}" in name:
                 address = socket.inet_ntoa(info.addresses[0])
                 self.hub_address = (address, info.port)
+                logger.info(f"Local mDNS discovery successful: {self.hub_address}")
                 self.found_hub.set()
+        except Exception as e:
+            logger.error(f"Error resolving mDNS service {name}: {e}")
 
-async def discover(room_code, aiozc):
+async def discover_lan(room_code: str, aiozc: AsyncZeroconf, timeout: float = 3.0):
+    """Searches local network via mDNS."""
     listener = DiscoveryListener(room_code)
-    
-    print(f"Searching for Hub-{room_code}...")
-    # We use the aiozc instance passed from the caller instead of creating a new one
     browser = AsyncServiceBrowser(aiozc.zeroconf, "_clip-sync._tcp.local.", listener)
-    
     try:
-        await asyncio.wait_for(listener.found_hub.wait(), timeout=10.0)
+        await asyncio.wait_for(listener.found_hub.wait(), timeout=timeout)
         return listener.hub_address
     except asyncio.TimeoutError:
         return None
     finally:
-        # We DON'T close aiozc here anymore because it's managed by the caller
         await browser.async_cancel()
 
-if __name__ == "__main__":
+async def discover_wan(room_code: str, relay_server_url: str, timeout: float = 4.0):
+    """Fallback discovery over Internet via a Signaling/Relay Server."""
     try:
-        hub_info = asyncio.run(discover())
-        if hub_info:
-            print(f"Discovery successful. Ready to connect to {hub_info}")
-    except KeyboardInterrupt:
-        pass
+        async with websockets.connect(f"{relay_server_url}/lookup/{room_code}", timeout=timeout) as ws:
+            response = await ws.recv()
+            data = json.loads(response)
+            if data.get("status") == "success":
+                logger.info(f"Internet WAN discovery successful: {data['endpoint']}")
+                return tuple(data['endpoint']) # returns (host, port) or relay session ID
+    except Exception as e:
+        logger.debug(f"WAN discovery fallback skipped or failed: {e}")
+    return None
+
+async def discover(room_code: str, aiozc: AsyncZeroconf, relay_url: str = None):
+    """Hybrid Local/WAN Discovery pipeline."""
+    # Step 1: Rapid LAN Check (3 Seconds)
+    lan_result = await discover_lan(room_code, aiozc, timeout=3.0)
+    if lan_result:
+        return {"mode": "DIRECT", "endpoint": lan_result}
+
+    # Step 2: WAN Relay Fallback (If configured)
+    if relay_url:
+        wan_result = await discover_wan(room_code, relay_url)
+        if wan_result:
+            return {"mode": "RELAY", "endpoint": wan_result}
+
+    return None

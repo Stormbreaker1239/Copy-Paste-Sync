@@ -1,0 +1,26 @@
+[2026-09-19 09:58:23,528] [INFO] [ClipSync]: Transitioning mode: IDLE -> HOST
+[2026-09-19 09:58:43,898] [INFO] [ClipSync]: Transitioning mode: IDLE -> CLIENT
+[2026-09-19 09:58:44,961] [INFO] [ClipSync.Discovery]: Local mDNS discovery successful: ('192.168.1.40', 5555)
+[2026-09-19 09:58:44,963] [INFO] [ClipSync]: Peer connected: 192.168.1.40:54624
+[2026-09-19 09:59:34,002] [INFO] [ClipSync]: Transitioning mode: CLIENT -> IDLE
+[2026-09-19 09:59:34,013] [INFO] [ClipSync]: Peer disconnected: 192.168.1.40:54624
+[2026-09-19 09:59:39,004] [INFO] [ClipSync]: Transitioning mode: IDLE -> CLIENT
+[2026-09-19 09:59:40,181] [INFO] [ClipSync.Discovery]: Local mDNS discovery successful: ('192.168.1.40', 5555)
+[2026-09-19 09:59:40,183] [INFO] [ClipSync]: Peer connected: 192.168.1.40:53902
+[2026-09-19 09:59:44,722] [INFO] [ClipSync]: Transitioning mode: HOST -> IDLE
+[2026-09-19 09:59:49,009] [INFO] [ClipSync]: Transitioning mode: CLIENT -> IDLE
+[2026-09-19 09:59:49,016] [INFO] [ClipSync]: Peer disconnected: 192.168.1.40:53902
+[2026-09-19 10:00:19,160] [INFO] [ClipSync]: Transitioning mode: IDLE -> CLIENT
+[2026-09-19 10:01:20,957] [INFO] [ClipSync]: Transitioning mode: IDLE -> CLIENT
+[2026-09-19 10:03:06,193] [INFO] [ClipSync]: Transitioning mode: CLIENT -> IDLE
+[2026-09-19 10:03:07,555] [INFO] [ClipSync]: Transitioning mode: CLIENT -> IDLE
+[2026-09-19 12:44:24,708] [INFO] [ClipSync]: Transitioning mode: IDLE -> HOST
+[2026-09-19 12:45:15,338] [INFO] [ClipSync]: Transitioning mode: IDLE -> CLIENT
+[2026-09-19 12:45:16,457] [INFO] [ClipSync.Discovery]: Local mDNS discovery successful: ('192.168.1.40', 5555)
+[2026-09-19 12:45:16,460] [INFO] [ClipSync]: Peer registered: JoiningDeathly (29979bdf) from 192.168.1.40
+[2026-09-19 21:29:29,507] [INFO] [ClipSync]: Transitioning mode: IDLE -> HOST
+[2026-09-19 21:30:00,929] [INFO] [ClipSync]: Transitioning mode: IDLE -> CLIENT
+[2026-09-19 21:30:02,077] [INFO] [ClipSync.Discovery]: Local mDNS discovery successful: ('192.168.1.40', 5555)
+[2026-09-19 21:30:02,079] [INFO] [ClipSync]: Peer registered: Stormbreaker (a9517f87) from 192.168.1.40
+[2026-09-19 21:31:08,984] [INFO] [ClipSync]: Peer disconnected: a9517f87
+[2026-09-19 21:31:09,425] [INFO] [ClipSync]: Transitioning mode: CLIENT -> IDLE
